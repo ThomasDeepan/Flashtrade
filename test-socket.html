@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket Test</title>
+    <!-- loads socket.io client from your backend automatically -->
+    <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <h2>Live Prices</h2>
+    <div id="prices"></div>
+
+    <script>
+      // Connect to your backend
+      const socket = io("http://localhost:3001");
+
+      socket.on("connect", () => {
+        console.log("Connected! ID:", socket.id);
+
+        // Subscribe to 3 stocks
+        socket.emit("subscribe", ["AAPL", "TSLA", "NVDA"]);
+      });
+
+      // Every time a tick arrives, update the page
+      socket.on("tick", (data) => {
+        let el = document.getElementById(data.symbol);
+        if (!el) {
+          el = document.createElement("p");
+          el.id = data.symbol;
+          document.getElementById("prices").appendChild(el);
+        }
+        el.textContent = `${data.symbol}: $${data.price}`;
+      });
+    </script>
+  </body>
+</html>
